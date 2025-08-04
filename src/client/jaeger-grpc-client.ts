@@ -5,6 +5,8 @@ import {
     FindTracesResponse,
     GetOperationsRequest,
     GetOperationsResponse,
+    GetServiceGraphRequest,
+    GetServiceGraphResponse,
     GetServicesRequest,
     GetServicesResponse,
     GetTraceRequest,
@@ -372,8 +374,12 @@ export class JaegerGrpcClient implements JaegerClient {
                     serviceName: request.query.serviceName,
                     operationName: request.query.operationName,
                     attributes: request.query.attributes,
-                    startTimeMin: this._toTimestamp(request.query.startTimeMin),
-                    startTimeMax: this._toTimestamp(request.query.startTimeMax),
+                    startTimeMin: this._toTimestamp(
+                        Date.parse(request.query.startTimeMin)
+                    ),
+                    startTimeMax: this._toTimestamp(
+                        Date.parse(request.query.startTimeMax)
+                    ),
                     durationMin: this._toDuration(request.query.durationMin),
                     durationMax: this._toDuration(request.query.durationMax),
                     searchDepth: request.query.searchDepth,
@@ -390,5 +396,11 @@ export class JaegerGrpcClient implements JaegerClient {
         } catch (err: any) {
             return this._handleError(err);
         }
+    }
+
+    async getServiceGraph(
+        request: GetServiceGraphRequest
+    ): Promise<GetServiceGraphResponse> {
+        return this._handleError('getServiceGraph not supported by gRPC');
     }
 }

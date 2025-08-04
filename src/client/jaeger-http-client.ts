@@ -3,6 +3,8 @@ import {
     FindTracesResponse,
     GetOperationsRequest,
     GetOperationsResponse,
+    GetServiceGraphRequest,
+    GetServiceGraphResponse,
     GetServicesRequest,
     GetServicesResponse,
     GetTraceRequest,
@@ -22,19 +24,22 @@ const HTTP_STATUS_CODE_NOT_FOUND: number = 404;
 
 export class JaegerHttpClient implements JaegerClient {
     private readonly url: string;
-    private readonly port: number;
     private readonly authorizationHeader: string | undefined;
 
     constructor(clientConfigurations: ClientConfigurations) {
-        this.url = JaegerHttpClient._normalizeUrl(clientConfigurations.url);
-        this.port = JaegerHttpClient._normalizePort(
-            this.url,
-            clientConfigurations.port
+        this.url = JaegerHttpClient._normalizeUrl(
+            clientConfigurations.url,
+            clientConfigurations.port,
+            clientConfigurations.allowDefaultPort
         );
         this.authorizationHeader = clientConfigurations.authorizationHeader;
     }
 
-    private static _normalizeUrl(url: string, port?: number): string {
+    private static _normalizeUrl(
+        url: string,
+        port?: number,
+        allowDefaultPort?: boolean
+    ): string {
         const schemaIdx: number = url.indexOf(URL_SCHEMA_SEPARATOR);
         if (schemaIdx < 0) {
             if (port === SECURE_URL_PORT) {
@@ -43,29 +48,26 @@ export class JaegerHttpClient implements JaegerClient {
                 url = `${INSECURE_URL_SCHEMA}${url}`;
             }
         }
+
+        if (port) {
+            url = `${url}:${port}`;
+        } else if (allowDefaultPort) {
+            port = url.startsWith(SECURE_URL_SCHEMA)
+                ? SECURE_URL_PORT
+                : DEFAULT_PORT;
+            url = `${url}:${port}`;
+        }
+
         return url;
     }
 
-    private static _normalizePort(
-        normalizedUrl: string,
-        port?: number
-    ): number {
-        if (normalizedUrl.startsWith(SECURE_URL_SCHEMA)) {
-            return port || SECURE_URL_PORT;
-        }
-        return port || DEFAULT_PORT;
-    }
-
     private async _get<R>(path: string, params?: any): Promise<R> {
-        const response: AxiosResponse = await axios.get(
-            `${this.url}:${this.port}/${path}`,
-            {
-                params,
-                headers: {
-                    Authorization: this.authorizationHeader,
-                },
-            }
-        );
+        const response: AxiosResponse = await axios.get(`${this.url}${path}`, {
+            params,
+            headers: {
+                Authorization: this.authorizationHeader,
+            },
+        });
         if (response.status != 200) {
             throw new Error(
                 `Request failed with status code ${response.status}`
@@ -231,10 +233,30 @@ export class JaegerHttpClient implements JaegerClient {
                 'query.search_depth': request.query.searchDepth,
             });
             return {
-                resourceSpans: this._normalizeResourceSpans(
-                    httpResponse.result.resourceSpans
-                ),
+                // returns {"result":{}} if no traces found
+                resourceSpans: httpResponse.result.resourceSpans
+                    ? this._normalizeResourceSpans(
+                          httpResponse.result.resourceSpans
+                      )
+                    : [],
             };
+        } catch (err: any) {
+            return this._handleError(err);
+        }
+    }
+
+    async getServiceGraph(
+        request: GetServiceGraphRequest
+    ): Promise<GetServiceGraphResponse> {
+        try {
+            const httpResponse: any = await this._get('/api/dependencies', {
+                endTs: request.endTS,
+                lookback: request.lookback,
+            });
+
+            return {
+                graphEdges: httpResponse.data,
+            } as GetServiceGraphResponse;
         } catch (err: any) {
             return this._handleError(err);
         }
