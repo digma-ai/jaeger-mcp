@@ -7,9 +7,9 @@
   "bin": {
     "jaeger-mcp-server": "./dist/index.js"
   },
-  "author": "Serkan Ozal <serkanozal86@gmail.com> (https://github.com/serkan-ozal)",
-  "homepage": "https://github.com/serkan-ozal/jaeger-mcp-server",
-  "repository": "serkan-ozal/jaeger-mcp-server",
+  "author": "digma-ai (https://github.com/digma-ai)",
+  "homepage": "https://github.com/digma-ai/jaeger-mcp-server",
+  "repository": "digma-ai/jaeger-mcp-server",
   "license": "MIT",
   "keywords": [
     "mcp-server",
