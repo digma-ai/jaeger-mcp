@@ -231,6 +231,7 @@ export class JaegerHttpClient implements JaegerClient {
                     request.query.durationMax
                 ),
                 'query.search_depth': request.query.searchDepth,
+                'query.limit': 4,
             });
             return {
                 // returns {"result":{}} if no traces found
