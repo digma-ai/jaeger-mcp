@@ -1,3 +1,5 @@
+!!! **This repo was forked from https://github.com/serkan-ozal/jaeger-mcp-server** !!!
+
 # Jaeger MCP Server
 
 ![Build Status](https://github.com/serkan-ozal/jaeger-mcp-server/actions/workflows/build.yml/badge.svg)
