@@ -1,5 +1,5 @@
 {
-  "name": "jaeger-mcp-server",
+  "name": "@digmaai/jaeger-mcp",
   "version": "0.1.0",
   "description": "MCP Server for Jaeger",
   "type": "commonjs",
@@ -8,8 +8,8 @@
     "jaeger-mcp-server": "./dist/index.js"
   },
   "author": "digma-ai (https://github.com/digma-ai)",
-  "homepage": "https://github.com/digma-ai/jaeger-mcp-server",
-  "repository": "digma-ai/jaeger-mcp-server",
+  "homepage": "https://github.com/digma-ai/jaeger-mcp",
+  "repository": "digma-ai/jaeger-mcp",
   "license": "MIT",
   "keywords": [
     "mcp-server",
